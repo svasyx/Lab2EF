@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lab2EF.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20221213212205_AddedAdmin")]
+    partial class AddedAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,31 +70,6 @@ namespace Lab2EF.Migrations
                         });
                 });
 
-            modelBuilder.Entity("GoodsInStorage", b =>
-                {
-                    b.Property<int>("place")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("place"));
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<float>("medicineArticle")
-                        .HasColumnType("real");
-
-                    b.Property<int>("storageid")
-                        .HasColumnType("int");
-
-                    b.HasKey("place");
-
-                    b.HasIndex("medicineArticle")
-                        .IsUnique();
-
-                    b.ToTable("GoodsInStorage");
-                });
-
             modelBuilder.Entity("Medicine", b =>
                 {
                     b.Property<float>("Article")
@@ -138,7 +116,7 @@ namespace Lab2EF.Migrations
 
                     b.HasIndex("medicineListsID");
 
-                    b.ToTable("ListToList", (string)null);
+                    b.ToTable("MedicinemedicineList");
                 });
 
             modelBuilder.Entity("Pharmacist", b =>
@@ -274,8 +252,7 @@ namespace Lab2EF.Migrations
                 {
                     b.HasOne("Pharmacist", "pharmacist")
                         .WithMany("bills")
-                        .HasForeignKey("pharmacistID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("pharmacistID");
 
                     b.HasOne("Shopper", "shopper")
                         .WithMany("bills")
@@ -286,15 +263,6 @@ namespace Lab2EF.Migrations
                     b.Navigation("pharmacist");
 
                     b.Navigation("shopper");
-                });
-
-            modelBuilder.Entity("GoodsInStorage", b =>
-                {
-                    b.HasOne("Medicine", null)
-                        .WithOne("goodsInStorage")
-                        .HasForeignKey("GoodsInStorage", "medicineArticle")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Medicine", b =>
@@ -345,11 +313,6 @@ namespace Lab2EF.Migrations
                         .IsRequired();
 
                     b.Navigation("recipe");
-                });
-
-            modelBuilder.Entity("Medicine", b =>
-                {
-                    b.Navigation("goodsInStorage");
                 });
 
             modelBuilder.Entity("Pharmacist", b =>

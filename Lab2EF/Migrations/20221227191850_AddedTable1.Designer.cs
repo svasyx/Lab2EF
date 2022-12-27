@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lab2EF.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20221227191850_AddedTable1")]
+    partial class AddedTable1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,25 +72,16 @@ namespace Lab2EF.Migrations
 
             modelBuilder.Entity("GoodsInStorage", b =>
                 {
-                    b.Property<int>("place")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("place"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
-                    b.Property<float>("medicineArticle")
-                        .HasColumnType("real");
-
-                    b.Property<int>("storageid")
-                        .HasColumnType("int");
-
-                    b.HasKey("place");
-
-                    b.HasIndex("medicineArticle")
-                        .IsUnique();
+                    b.HasKey("ID");
 
                     b.ToTable("GoodsInStorage");
                 });
@@ -107,6 +101,9 @@ namespace Lab2EF.Migrations
                     b.Property<DateTime>("expDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("goodsInStorageID")
+                        .HasColumnType("int");
+
                     b.Property<int>("producerID")
                         .HasColumnType("int");
 
@@ -117,6 +114,8 @@ namespace Lab2EF.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Article");
+
+                    b.HasIndex("goodsInStorageID");
 
                     b.HasIndex("producerID");
 
@@ -288,22 +287,21 @@ namespace Lab2EF.Migrations
                     b.Navigation("shopper");
                 });
 
-            modelBuilder.Entity("GoodsInStorage", b =>
-                {
-                    b.HasOne("Medicine", null)
-                        .WithOne("goodsInStorage")
-                        .HasForeignKey("GoodsInStorage", "medicineArticle")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Medicine", b =>
                 {
+                    b.HasOne("GoodsInStorage", "goodsInStorage")
+                        .WithMany("medicines")
+                        .HasForeignKey("goodsInStorageID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Producer", "producer")
                         .WithMany("medicines")
                         .HasForeignKey("producerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("goodsInStorage");
 
                     b.Navigation("producer");
                 });
@@ -347,9 +345,9 @@ namespace Lab2EF.Migrations
                     b.Navigation("recipe");
                 });
 
-            modelBuilder.Entity("Medicine", b =>
+            modelBuilder.Entity("GoodsInStorage", b =>
                 {
-                    b.Navigation("goodsInStorage");
+                    b.Navigation("medicines");
                 });
 
             modelBuilder.Entity("Pharmacist", b =>

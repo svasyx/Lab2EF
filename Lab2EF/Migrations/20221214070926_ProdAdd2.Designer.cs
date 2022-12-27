@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lab2EF.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20221214070926_ProdAdd2")]
+    partial class ProdAdd2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,31 +68,6 @@ namespace Lab2EF.Migrations
                         {
                             t.HasCheckConstraint("finalPrice", "[finalPrice] > 0");
                         });
-                });
-
-            modelBuilder.Entity("GoodsInStorage", b =>
-                {
-                    b.Property<int>("place")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("place"));
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<float>("medicineArticle")
-                        .HasColumnType("real");
-
-                    b.Property<int>("storageid")
-                        .HasColumnType("int");
-
-                    b.HasKey("place");
-
-                    b.HasIndex("medicineArticle")
-                        .IsUnique();
-
-                    b.ToTable("GoodsInStorage");
                 });
 
             modelBuilder.Entity("Medicine", b =>
@@ -163,6 +141,13 @@ namespace Lab2EF.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Pharmacist");
 
                     b.UseTphMappingStrategy();
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 2,
+                            Name = "Belenko Nikola Petrovich"
+                        });
                 });
 
             modelBuilder.Entity("Producer", b =>
@@ -183,6 +168,14 @@ namespace Lab2EF.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Producer");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 2,
+                            Name = "Bayer",
+                            licenseNum = 123f
+                        });
                 });
 
             modelBuilder.Entity("Recipe", b =>
@@ -222,6 +215,12 @@ namespace Lab2EF.Migrations
                     b.ToTable("Shopper", t =>
                         {
                             t.HasCheckConstraint("discountValue", "[discountValue] <= 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            phoneNum = "0930991212"
                         });
                 });
 
@@ -288,15 +287,6 @@ namespace Lab2EF.Migrations
                     b.Navigation("shopper");
                 });
 
-            modelBuilder.Entity("GoodsInStorage", b =>
-                {
-                    b.HasOne("Medicine", null)
-                        .WithOne("goodsInStorage")
-                        .HasForeignKey("GoodsInStorage", "medicineArticle")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Medicine", b =>
                 {
                     b.HasOne("Producer", "producer")
@@ -345,11 +335,6 @@ namespace Lab2EF.Migrations
                         .IsRequired();
 
                     b.Navigation("recipe");
-                });
-
-            modelBuilder.Entity("Medicine", b =>
-                {
-                    b.Navigation("goodsInStorage");
                 });
 
             modelBuilder.Entity("Pharmacist", b =>
