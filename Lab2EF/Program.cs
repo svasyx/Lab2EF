@@ -136,19 +136,87 @@ public class GoodsInStorage
 
 }
 
+public class Lab4
+{
+    public void LockExample()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Thread myThread = new(AddWithLock);
+            myThread.Name = $"Thread {i}";
+            myThread.Start(i);
+        }
+    }
 
+    public void AddWithLock(object? threadNumber)
+    {
+        lock (this)
+        {
+            using (ApplicationContext context1 = new())
+            {
+                context1.Producer.Add(new Producer { Name = "some" + threadNumber});
+                context1.SaveChanges();
+                Console.WriteLine($"Thread = {threadNumber} Added name = some" + threadNumber);
+            }
+        }
+    }
+
+    public void GetExample()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Thread myThread = new(GetWithLock);
+            myThread.Name = $"Thread {i}";
+            myThread.Start(i);
+        }
+    }
+    public void GetWithLock(object? threadNumber)
+    {
+        lock (this)
+        {
+            ApplicationContext context2 = new();
+            var get = context2.Producer.ToList();
+            foreach (var group in get)
+                Console.WriteLine($"Thread = {threadNumber} name = {group.Name}");
+        }
+    }
+
+}
 
 public class Program
 {
    
 
-    static void Main()
+    static async Task Main()
     {
-        
+
+        Lab4 lab4 = new Lab4();
+        //lab4.LockExample();
+        //lab4.GetExample();
+
+
+        for (int i = 0; i < 10; i++)
+        {
+            using (ApplicationContext context1 = new ApplicationContext())
+            {
+                await context1.Producer.AddAsync(new Producer { Name = "some" + i});
+                await context1.SaveChangesAsync();
+                Console.WriteLine($"Added name = some" + i);
+            }
+        }
+
+        using (ApplicationContext context1 = new ApplicationContext())
+        {
+            var get = await context1.Producer.ToListAsync();
+            foreach (var group in get)
+                Console.WriteLine($"name = {group.Name}");
+        }
+
+
         using (ApplicationContext task = new ApplicationContext())
         {
 
-            //select distinct * from producer
+            //select  * from producer
 
             //var get = task.Producer.ToList();
             //foreach (var item in get)
@@ -238,18 +306,50 @@ public class Program
             //group by count
             //having count >= 2
 
-            //var get9 = task.Medicine.Where(m => m.count >= 2).GroupBy(m => m.count).ToList()
+            //var get9 = task.Medicine.GroupBy(m => m.Name).ToList()
             //    .Select(group =>
             //    new
             //    {
-            //        count = group.Key
+            //        Name = group.Key,
+            //        Count = group.Count()
 
             //    });
 
-            //foreach (var item in get9)
+            //foreach (var itemL in get9)
             //{
-            //    Console.WriteLine($"Medicine Name = {item.count}");
+            //    Console.WriteLine($"MedicineName = {itemL.Name} Medicine Count = {itemL.Count}");
             //}
+
+            //var task1 = task.medicineList.Where(b =>
+            //task.Bill.Where(thisTask => thisTask.dateofPay < new DateTime(2022,12,1) && b.billID == thisTask.ID).Any())
+            //    .Include(m => m.listifmedlists);
+
+            //List<Medicine> AllList = new();
+
+            //foreach (var item in task1)
+            //{
+            //    foreach (var item1 in item.listifmedlists)
+            //    {
+            //        AllList.Add(item1);
+            //    }
+            //}
+
+            //var newList = AllList.GroupBy(m => m.Name)
+
+            //       .Select(g =>
+            //   new
+            //   {
+            //       Name = g.Key,
+            //       Count = g.Count()
+            //   })
+            //       .Where(g => g.Count < 5);
+
+            //foreach (var itemL in newList)
+            //{
+            //    Console.WriteLine($"MedicineName = {itemL.Name} Medicine Count = {itemL.Count}");
+            //}
+
+
 
             //select Name from medicine where medicine.count < MIN(select licenseNum from producer)
 
@@ -383,10 +483,10 @@ public class Program
             //go
 
 
-           // var getfunc = task.Database.ExecuteSqlRaw("select dbo.MedicineCount()");
+            //var getfunc = task.Database.SqlQueryRaw<int>($"select dbo.MedicineCount() value").First();
 
-           //Console.WriteLine(getfunc);
-           
+            //Console.WriteLine(getfunc);
+
 
 
         }
